@@ -1,10 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>{% block page_title %}{% endblock %}</title>
-<meta name="description" content="{% block page_description %}{% endblock %}">
+	<meta charset="utf-8">
+	<title>{% block page_title %}{% endblock %}</title>
+	<meta name="description" content="{% block page_description %}{% endblock %}">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel=“icon” href="/favicon.ico" sizes="16x16 32x32 48x48 64x64" type=”image/vnd.microsoft.icon”>
+	<link rel="stylesheet" href="{{ static_domain }}/_themes/pinfinity/css/pinfinity_20130522.css" />
 </head>
 <body>
-{% block main_content %}{% endblock %}
+	<!--[if lt IE 8]>
+	<p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+	<![endif]-->
+
+<div id="container">
+	<div id="banner">
+		<div class="top-nav">
+			<ul class="nav">
+				<li class="nav-item">
+					<a class="track-link-conversion" href="mailto:connect@pinfinity.co"
+						data-convert-name="top-nav email">
+						<img src="{{ static_domain }}/_themes/pinfinity/img/icons/email.png" width="24px" height="24px" />
+						connect@pinfinity.co
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="track-link-conversion"
+						href="http://www.linkedin.com/company/pinfinity-consulting-llc-"
+						data-convert-name="top-nav LinkedIn">
+						<img src="{{ static_domain }}/_themes/pinfinity/img/icons/linkedin.png" width="24px" height="24px" />
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="track-link-conversion"
+						href="https://twitter.com/PinfinityBooks"
+						data-convert-name="top-nav Twitter">
+						<img src="{{ static_domain }}/_themes/pinfinity/img/icons/twitter.png" width="24px" height="24px" />
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="track-link-conversion"
+						href="https://www.facebook.com/pages/Pinfinity-Consulting-LLC/187886501334932"
+						data-convert-name="top-nav Facebook">
+						<img src="{{ static_domain }}/_themes/pinfinity/img/icons/facebook.png" width="24px" height="24px" />
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div class="main-nav">
+			<div class="branding">
+				<a href="/"><img src="{{ static_domain }}/_themes/pinfinity/img/pinfinity-horizontal.png" /></a>
+			</div>
+			<ul class="nav">
+				<li class="nav-item first">
+					<a href="/about" class="track-link-conversion" data-convert-name="main-nav about-us">
+						<strong>About Us</strong><br /><span class="sub">Our team</span>
+					</a>
+				</li>
+				<li class="nav-item">
+					<a href="/books/" class="track-link-conversion" data-convert-name="main-nav books">
+						<strong>Our Books</strong><br /><span class="sub">Current iBooks</span>
+					</a>
+				</li>
+				<li class="nav-item" class="track-link-conversion" data-convert-name="main-nav blog">
+					<a href="/blog/">
+						<strong>The Blog</strong><br /><span class="sub">Our knowledge</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	{% block main_content %}{% endblock %}
+
+	<div class="row connect">
+		<div class="span">
+			<div class="cta">
+				<h2 class="header light">Stay on top of your game.</h2>
+				<p class="tagline">
+				We do our best to find and share new, and insightful information about
+				technology, learning, and medicine. Don't miss a beat.
+				</p>
+			</div>
+			<div class="media-box boxa">
+				<a class="box social-link track-link-conversion"
+					data-convert-name="footer LinkedIn"
+					href="http://www.linkedin.com/company/pinfinity-consulting-llc-">
+				<h4 class="header2">Join Us on LinkedIn</h4>
+				<p class="content2">
+				LinkedIn is a great way to connect with influential people in medicine and education.
+				</p>
+				<p class="link"><img src="{{ static_domain }}/_themes/pinfinity/img/linkedin.png" /></p>
+				</a>
+			</div>
+			<div class="media-box boxb">
+				<a class="box social-link track-link-conversion"
+					data-convert-name="footer Twitter"
+					href="https://twitter.com/PinfinityBooks">
+				<h4 class="header2">Stay Up to Date on Twitter</h4>
+				<p class="content2">
+				Hear about everything happening now in technology, medicine, and education with us on Twitter.
+				</p>
+				<p class="link"><img src="{{ static_domain }}/_themes/pinfinity/img/twitter.png" /></p>
+				</a>
+			</div>
+			<div class="media-box boxc">
+				<a class="box social-link track-link-conversion"
+					data-convert-name="footer Facebook"
+					href="https://www.facebook.com/pages/Pinfinity-Consulting-LLC/187886501334932">
+				<h4 class="header2">Follow Us on Facebook</h4>
+				<p class="content2">
+				We post frequent updates and articles about health, and the changing landscape of education and learning.
+				</p>
+				<p class="link"><img src="{{ static_domain }}/_themes/pinfinity/img/facebook.png" /></p>
+				</a>
+			</div>
+			<div class="contact-us">
+				<p>And, please get in touch: <a href="mailto:connect@pinfinity.co">connect@pinfinity.co</a></p>
+			</div>
+		</div>
+	</div><!-- .row.connect -->
+
+	<div id="footer">
+		<p class="copyright">&copy; Pinfinity Consulting LLC 2012 - 2013</p>
+	</div><!-- #footer -->
+</div><!-- #container -->
+
+<script src="{{ static_domain }}/_themes/pinfinity/js/jquery-1.9.1.min.js" type="text/javascript"></script>
 </body>
 </html>
