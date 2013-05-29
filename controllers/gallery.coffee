@@ -16,6 +16,7 @@ index = (req, res, next) ->
     return
 
 widgetPost = (req, res, next) ->
+    console.log('POSTED')
     return next()
 
 widgetFrame = (req, res, next) ->

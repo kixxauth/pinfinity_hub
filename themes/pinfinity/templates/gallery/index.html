@@ -7,7 +7,15 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 {% endblock %}
 
 {% block main_content %}
-<div>
-	<p>Hello world!</p>
+<div id="hub-gallery">
+	<div class="row upload-widget">
+		<form action="/hub/gallery/" method="POST" enctype="multipart/form-data">
+			<label for="gallery_file">Upload a .wdgt.zip file</label>
+			<input id="gallery_file" name="gallery_file" type="file" />
+			<div class="form-actions">
+				<button class="button" type="submit">Upload</button>
+			</div>
+		</form>
+	</div>
 </div>
 {% endblock %}
