@@ -31,6 +31,7 @@ setup () {
     if ! [ -d "$BASE/node_modules" ]; then
         cd "$BASE/"
         mkdir "$BASE/node_modules"
+        npm install
         sudo npm link enginemill
     fi
 }
