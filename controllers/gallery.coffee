@@ -66,7 +66,8 @@ widgetPost = (req, res, next) ->
     if err
         res.updateContext({error: err})
     else
-        new ZIP(zip.path).extractAllTo(GALLERY)
+        print res.body
+        # saveWidget(zip.path, GALLERY)
 
     # Proceed to the index handler.
     return next()
@@ -104,3 +105,19 @@ extendContext = (req, res, next) ->
         static_domain: "http://#{static_domain}"
     res.updateContext(ext)
     return next()
+
+# Extract a widget zip archive and write it to disk.
+saveWidget = (sourcePath, targetRoot) ->
+    zip = new ZIP(sourcePath)
+
+    # Using a timestamp as UID should be good enough for now.
+    id = new Date().getTime().toString()
+
+    entries = zip.getEntries().forEach (entry) ->
+        if not entry.isDirectory
+            filepath = entry.entryName.split('/').slice(1).join('/')
+            path = "#{targetRoot}/#{id}/#{filepath}"
+            zip.extractEntryTo(entry.entryName, path)
+        return
+
+    return id
