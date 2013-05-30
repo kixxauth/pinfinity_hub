@@ -24,6 +24,7 @@ exports.controllers = (use, handler) ->
     return
 
 
+# Handler: Main gallery listing.
 index = (req, res, next) ->
 
     # List all the gallery entries from the directory.
@@ -43,23 +44,35 @@ index = (req, res, next) ->
     return
 
 
+# Handler: Zip file uploads of HTML widgets.
 widgetPost = (req, res, next) ->
     zip = req.files.gallery_file
 
+    # Handle edge cases
+    # 1) When there is no upload.
     if not zip
-        throw new Error("No file uploaded. Go back and try again.")
-    if zip.type isnt 'application/zip'
-        throw new Error("The uploaded file must be a zip file. Go back and try again.")
-    if /[^\w\-\.]/.test(zip.name)
-        msg = "Sorry, a zip file name may contain only letters, dashes, underscores, and numbers."
-        msg += "Go back and try again."
-        throw new Error(msg)
+        err = "No file was chosen. Give it another try."
 
-    archive = new ZIP(zip.path)
-    archive.extractAllTo(GALLERY)
+    # 2) When the mimetype is incorrect.
+    else if zip.type isnt 'application/zip'
+        err = "The uploaded file must be a zip file. Try renaming your file "
+        err += "with a .zip extension and try again."
+
+    # 3) When there are invalid characters in the name.
+    if /[^\w\-\.]/.test(zip.name)
+        err = "Sorry, a zip file name may contain only letters, dashes, "
+        err += "underscores, and numbers. Try renaming it and uploading again."
+
+    if err
+        res.updateContext({error: err})
+    else
+        new ZIP(zip.path).extractAllTo(GALLERY)
+
+    # Proceed to the index handler.
     return next()
 
 
+# Handler: Render the HTML widget preview frame.
 widgetFrame = (req, res, next) ->
     widgetId = req.params['widget']
     res.updateContext({item: widgetId})
@@ -71,6 +84,7 @@ widgetFrame = (req, res, next) ->
     return
 
 
+# Handler: Serve widget files from the widget package.
 widgetFiles = (req, res, next) ->
     widgetId = req.params['widget']
 
@@ -85,7 +99,6 @@ widgetFiles = (req, res, next) ->
 #
 
 extendContext = (req, res, next) ->
-    print !!req, !!res, !!next
     static_domain = process.env['STATIC_DOMAIN'] || 'www.pinfinity.co'
     ext =
         static_domain: "http://#{static_domain}"

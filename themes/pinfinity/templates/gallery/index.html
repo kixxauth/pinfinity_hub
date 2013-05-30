@@ -8,6 +8,17 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 
 {% block main_content %}
 <div id="hub-gallery">
+	{% if error %}
+	<div class="row errors">
+		<p><strong>Whoops. It seems there was an error processing your widget:</strong><br>
+		{{ error }}
+		</p>
+		<p>Please feel free to contact us regarding this problem at
+			<a href="mailto:connect@pinfinity.co">connect@pinfinity.co</a>.
+		</p>
+	</div>
+	{% endif %}
+
 	<div class="row gallery">
 		{% for entry in entries %}
 		<div class="entry">
