@@ -1,0 +1,13 @@
+#!/bin/bash
+BINDIR="$(cd `dirname "$0"` && pwd)"
+ROOTDIR="$( dirname "$BINDIR" )"
+LOGDIR=/var/log/pinfinity_hub
+
+main () {
+	if ! [ -d $LOGDIR ]; then
+		mkdir $LOGDIR
+	fi
+	nohup "$ROOTDIR/node_modules/.bin/em" webserver > $LOGDIR/out.log 2> $LOGDIR/err.log &
+}
+
+main "$@"
