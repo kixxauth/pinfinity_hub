@@ -6,6 +6,8 @@ multipartParser = require 'connect/lib/middleware/multipart'
 staticServer = require 'connect/lib/middleware/static'
 
 GALLERY = '/var/pinfinity_hub/gallery'
+DATA = '/var/pinfinity_hub/data'
+TEMP = '/tmp/pinfinity_hub'
 
 
 exports.controllers = (use, handler) ->
@@ -28,12 +30,9 @@ exports.controllers = (use, handler) ->
 index = (req, res, next) ->
 
     # List all the gallery entries from the directory.
-    entries = PATH.newPath(GALLERY).list().map (path) ->
-        return NPATH.basename(path)
-
-    # Filter out names that begin with an underscore. (namely __MACOSX)
-    entries = entries.filter (name) ->
-        return not /^_/.test(name)
+    entries = PATH.newPath(DATA).list().map (path) ->
+        json = FS.readFileSync(path.toString(), 'utf8')
+        return JSON.parse(json)
 
     res.updateContext({entries: entries})
 
@@ -58,16 +57,23 @@ widgetPost = (req, res, next) ->
         err = "The uploaded file must be a zip file. Try renaming your file "
         err += "with a .zip extension and try again."
 
-    # 3) When there are invalid characters in the name.
-    if /[^\w\-\.]/.test(zip.name)
-        err = "Sorry, a zip file name may contain only letters, dashes, "
-        err += "underscores, and numbers. Try renaming it and uploading again."
+    widgetName = req.body['widget_name'] or zip.name
+    emailAddress = req.body['email_address'] or 'NA'
 
     if err
         res.updateContext({error: err})
     else
-        print res.body
-        # saveWidget(zip.path, GALLERY)
+        try
+            saveWidget({
+                widgetName: widgetName
+                emailAddress: emailAddress
+                sourcePath: zip.path
+                targetRoot: GALLERY
+            })
+        catch err
+            msg = "There was an unexpected error while processing your widget: "
+            msg += (err.message or err.toString())
+            res.updateContext({error: msg})
 
     # Proceed to the index handler.
     return next()
@@ -107,17 +113,40 @@ extendContext = (req, res, next) ->
     return next()
 
 # Extract a widget zip archive and write it to disk.
-saveWidget = (sourcePath, targetRoot) ->
+saveWidget = (opts) ->
+    {widgetName, emailAddress, sourcePath, targetRoot} = opts
     zip = new ZIP(sourcePath)
 
     # Using a timestamp as UID should be good enough for now.
     id = new Date().getTime().toString()
 
+    # Extract to a temporary location
+    temp = "#{TEMP}/#{id}"
+    zip.extractAllTo(temp, true)
+
     entries = zip.getEntries().forEach (entry) ->
         if not entry.isDirectory
-            filepath = entry.entryName.split('/').slice(1).join('/')
-            path = "#{targetRoot}/#{id}/#{filepath}"
-            zip.extractEntryTo(entry.entryName, path)
+
+            # Split off the zip file directory name.
+            entrypath = entry.entryName.split('/').slice(1).join('/')
+
+            # Create the target directory path.
+            targetpath = "#{targetRoot}/#{id}/#{entrypath}"
+
+            # Create the new target directory
+            PATH.newPath(NPATH.dirname(targetpath)).mkdir()
+
+            # Copy the file to the target location
+            data = FS.readFileSync("#{temp}/#{entry.entryName}")
+            FS.writeFileSync(targetpath, data)
         return
 
-    return id
+    widget =
+        id: id
+        name: widgetName
+        owner: emailAddress
+
+    # Save the widget meta to disk.
+    datafile = "#{DATA}/#{id}.json"
+    FS.writeFileSync(datafile, JSON.stringify(widget), 'utf8')
+    return widget

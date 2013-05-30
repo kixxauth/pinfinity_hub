@@ -22,17 +22,21 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 	<div class="row gallery">
 		{% for entry in entries %}
 		<div class="entry">
-			<h4 class="header">{{ entry }}</h4>
-			<p><a href="/hub/gallery/{{ entry }}/preview">Preview</a></p>
+			<h4 class="header">{{ entry.name }}</h4>
+			<p><a href="/hub/gallery/{{ entry.id }}/preview">Preview</a></p>
 		</div>
 		{% endfor %}
 	</div>
 	<div class="row upload-widget">
 		<form action="/hub/gallery/" method="POST" enctype="multipart/form-data">
-			<label for="gallery_file">Upload a .wdgt.zip file</label>
+			<label for="gallery_file">Choose a .wdgt.zip file</label>
 			<input id="gallery_file" name="gallery_file" type="file" />
+			<label for="widget_name">Give it a name</label>
+			<input type="text" id="widget_name" name="widget_name" />
+			<label for="email_address">Your email address.</label>
+			<input type="text" id="email_address" name="email_address" />
 			<div class="form-actions">
-				<button class="button" type="submit">Upload</button>
+				<button class="button" type="submit">Upload It!</button>
 			</div>
 		</form>
 	</div>
