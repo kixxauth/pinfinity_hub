@@ -3,6 +3,7 @@ NPATH = require 'path'
 ZIP = require 'adm-zip'
 
 multipartParser = require 'connect/lib/middleware/multipart'
+staticServer = require 'connect/lib/middleware/static'
 
 GALLERY = '/var/pinfinity_hub/gallery'
 
@@ -10,11 +11,12 @@ GALLERY = '/var/pinfinity_hub/gallery'
 exports.controllers = (use, handler) ->
 
     multipart = multipartParser()
+    widgetServer = staticServer(GALLERY)
 
     handler 'index', index
     handler 'widgetPost', multipart, widgetPost, index
     handler 'widgetFrame', widgetFrame
-    handler 'widgetFiles', widgetFiles
+    handler 'widgetFiles', widgetFiles, widgetServer
 
     return
 
@@ -56,10 +58,23 @@ widgetPost = (req, res, next) ->
 
 
 widgetFrame = (req, res, next) ->
-    return next()
+    widgetId = req.params['widget']
+
+    res.render (format, context) ->
+        context.item = widgetId
+        context = extendContext(context)
+        return @html(200, '/gallery/preview.html', context)
+
+    res.finish()
+    return
 
 
 widgetFiles = (req, res, next) ->
+    widgetId = req.params['widget']
+
+    # We have to rewrite the request path before the static handler gets it.
+    parts = req.path.split('/').slice(5)
+    req.url = "#{widgetId}/#{parts.join('/')}"
     return next()
 
 
