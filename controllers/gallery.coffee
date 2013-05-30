@@ -13,6 +13,9 @@ exports.controllers = (use, handler) ->
     multipart = multipartParser()
     widgetServer = staticServer(GALLERY)
 
+    # The extendContext middleware is used for all requests.
+    use extendContext
+
     handler 'index', index
     handler 'widgetPost', multipart, widgetPost, index
     handler 'widgetFrame', widgetFrame
@@ -31,9 +34,9 @@ index = (req, res, next) ->
     entries = entries.filter (name) ->
         return not /^_/.test(name)
 
+    res.updateContext({entries: entries})
+
     res.render (format, context) ->
-        context.entries = entries
-        context = extendContext(context)
         return @html(200, '/gallery/index.html', context)
 
     res.finish()
@@ -59,10 +62,9 @@ widgetPost = (req, res, next) ->
 
 widgetFrame = (req, res, next) ->
     widgetId = req.params['widget']
+    res.updateContext({item: widgetId})
 
     res.render (format, context) ->
-        context.item = widgetId
-        context = extendContext(context)
         return @html(200, '/gallery/preview.html', context)
 
     res.finish()
@@ -82,8 +84,10 @@ widgetFiles = (req, res, next) ->
 # Utilities
 #
 
-extendContext = (context) ->
+extendContext = (req, res, next) ->
+    print !!req, !!res, !!next
     static_domain = process.env['STATIC_DOMAIN'] || 'www.pinfinity.co'
     ext =
         static_domain: "http://#{static_domain}"
-    return extend(context, ext)
+    res.updateContext(ext)
+    return next()
