@@ -30,7 +30,7 @@ exports.controllers = (use, handler) ->
 index = (req, res, next) ->
 
     # List all the gallery entries from the directory.
-    entries = PATH.newPath(DATA).list().map (path) ->
+    entries = PATH.newPath(DATA).list().reverse().map (path) ->
         json = FS.readFileSync(path.toString(), 'utf8')
         return JSON.parse(json)
 
