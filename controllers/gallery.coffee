@@ -1,19 +1,21 @@
-FS = require 'fs'
+FS    = require 'fs'
 NPATH = require 'path'
-ZIP = require 'adm-zip'
+ZIP   = require 'adm-zip'
 
 multipartParser = require 'connect/lib/middleware/multipart'
-staticServer = require 'connect/lib/middleware/static'
+staticServer    = require 'connect/lib/middleware/static'
 
-GALLERY = '/var/pinfinity_hub/gallery'
-DATA = '/var/pinfinity_hub/data'
-TEMP = '/tmp/pinfinity_hub'
+GALLERY  = '/var/pinfinity_hub/gallery'
+DATA     = '/var/pinfinity_hub/data'
+DWNLOADS = '/var/pinfinity_hub/downloads'
+TEMP     = '/tmp/pinfinity_hub'
 
 
 exports.controllers = (use, handler) ->
 
     multipart = multipartParser()
     widgetServer = staticServer(GALLERY)
+    downloadServer = staticServer(DWNLOADS)
 
     # The extendContext middleware is used for all requests.
     use extendContext
@@ -22,6 +24,7 @@ exports.controllers = (use, handler) ->
     handler 'widgetPost', multipart, widgetPost, index
     handler 'widgetFrame', widgetFrame
     handler 'widgetFiles', widgetFiles, widgetServer
+    handler 'download', download, downloadServer
 
     return
 
@@ -66,6 +69,7 @@ widgetPost = (req, res, next) ->
         try
             saveWidget({
                 widgetName: widgetName
+                zipName: zip.name
                 emailAddress: emailAddress
                 sourcePath: zip.path
                 targetRoot: GALLERY
@@ -73,6 +77,7 @@ widgetPost = (req, res, next) ->
         catch err
             msg = "There was an unexpected error while processing your widget: "
             msg += (err.message or err.toString())
+            console.error(msg)
             res.updateContext({error: msg})
 
     # Proceed to the index handler.
@@ -101,6 +106,16 @@ widgetFiles = (req, res, next) ->
     return next()
 
 
+# Handler: Download a file from the downloads directory.
+download = (req, res, next) ->
+    id = req.params['id']
+
+    # We have to rewrite the request path before the static handler gets it.
+    name = req.path.split('/').pop()
+    req.url = "#{id}/#{name}"
+    return next()
+
+
 #
 # Utilities
 #
@@ -114,7 +129,7 @@ extendContext = (req, res, next) ->
 
 # Extract a widget zip archive and write it to disk.
 saveWidget = (opts) ->
-    {widgetName, emailAddress, sourcePath, targetRoot} = opts
+    {widgetName, emailAddress, sourcePath, targetRoot, zipName} = opts
     zip = new ZIP(sourcePath)
 
     # Using a timestamp as UID should be good enough for now.
@@ -145,8 +160,18 @@ saveWidget = (opts) ->
         id: id
         name: widgetName
         owner: emailAddress
+        download: id + '/' + zipName
 
     # Save the widget meta to disk.
     datafile = "#{DATA}/#{id}.json"
     FS.writeFileSync(datafile, JSON.stringify(widget), 'utf8')
+
+    # Copy the zip file to a safe location for download.
+    destdir = PATH.newPath(DWNLOADS, id).mkdir()
+    dest = destdir.append(zipName).toString()
+    source = FS.createReadStream(sourcePath)
+    sink = FS.createWriteStream(dest)
+    # TODO: Add error handlers to source and sink.
+    source.pipe(sink)
+
     return widget

@@ -29,7 +29,10 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 			<div class="entry-inner">
 			<h4 class="header">{{ entry.name }}</h4>
 			<p class="entry-image"><img src="/hub/gallery/{{ entry.id }}/files/default.png" />
-			<p><a href="/hub/gallery/{{ entry.id }}/preview">Preview</a></p>
+			<p>
+				<a href="/hub/gallery/{{ entry.id }}/preview">Preview</a>
+				<a href="/hub/downloads/{{ entry.download }}">Download</a>
+			</p>
 			</div>
 		</div>
 		{% endfor %}
