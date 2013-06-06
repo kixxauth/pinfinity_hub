@@ -13,6 +13,16 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 		<br /><span class="sub">Showing off the work of interactive HTML widget creators.</span>
 		</h1>
 	</div>
+	{% if error %}
+	<div class="row">
+		<div class="alert error">
+		<h4>Ooops. There was a problem with your submission:</h4>
+		<p>{{ error }}
+		<br /><a href="#upload-widget">Click here to skip to the form</a> and try again.
+		</p>
+		</div>
+	</div>
+	{% endif %}
 	<div class="row gallery">
 		{% for entry in entries %}
 		<div class="entry">
@@ -24,7 +34,7 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 		</div>
 		{% endfor %}
 	</div>
-	<div class="row upload-widget">
+	<div id="upload-widget" class="row upload-widget">
 		<h2 class="header light">What have you been working on?</h2>
 		<p class="info">Just zip up your widget (.wdgt) directory, upload it, and we'll show it off.</p>
 		<form class="form" action="/hub/gallery/" method="POST" enctype="multipart/form-data">
