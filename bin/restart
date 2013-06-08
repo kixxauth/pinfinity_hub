@@ -7,7 +7,10 @@ main () {
 	if ! [ -d $LOGDIR ]; then
 		mkdir $LOGDIR
 	fi
-	nohup "$ROOTDIR/node_modules/.bin/em" webserver > $LOGDIR/out.log 2> $LOGDIR/err.log &
+	nohup "$ROOTDIR/node_modules/.bin/em" \
+        webserver \
+        "$ROOTDIR" \
+        > $LOGDIR/out.log 2> $LOGDIR/err.log &
 }
 
 main "$@"
