@@ -32,12 +32,11 @@ setup () {
         cd "$BASE/"
         mkdir "$BASE/node_modules"
         npm install
-        sudo npm link enginemill
     fi
 }
 
 clean () {
-    sudo rm -rf "$BASE/node_modules/"
+    rm -rf "$BASE/node_modules/"
 }
 
 main "$@"
