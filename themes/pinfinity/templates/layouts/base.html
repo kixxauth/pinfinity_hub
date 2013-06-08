@@ -7,6 +7,63 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel=“icon” href="/favicon.ico" sizes="16x16 32x32 48x48 64x64" type=”image/vnd.microsoft.icon”>
 	<link rel="stylesheet" href="{{ static_domain }}/_themes/pinfinity/css/pinfinity_20130530.css" />
+<script type="text/javascript">
+(function(e,b){if(!b.__SV){var a,f,i,g;window.mixpanel=b;a=e.createElement("script");a.type="text/javascript";a.async=!0;a.src=("https:"===e.location.protocol?"https:":"http:")+'//cdn.mxpnl.com/libs/mixpanel-2.2.min.js';f=e.getElementsByTagName("script")[0];f.parentNode.insertBefore(a,f);b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==
+typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");for(g=0;g<i.length;g++)f(c,i[g]);
+b._i.push([a,e,d])};b.__SV=1.2}})(document,window.mixpanel||[]);
+
+var APP = (function () {
+	var APP = {
+		inDevmode: /^([\d]+|localhost)/.test(window.location.hostname),
+		start: new Date().getTime(),
+		log: function () {
+			if (window.console && console.log) console.log.apply(console, arguments);
+		}
+	}
+
+	function extendMixpanelProperties(properties) {
+		properties = properties || {};
+		properties.pathname = window.location.pathname;
+		properties.title = document.title;
+		properties.time_onsite = Math.round((new Date().getTime() - APP.start) / 1000);
+		return properties;
+	}
+
+	if (APP.inDevmode) {
+		APP.log('inDevmode == yes');
+		APP.track = function (eventName, properties) {
+			APP.log('Track', eventName, extendMixpanelProperties(properties));
+		}
+		APP.trackLinks = function (selector, eventName, callback) {
+			$(selector).on('click', function () {
+				var properties = callback(this);
+				properties.target_url = $(this).attr('href')
+				APP.track(eventName, properties);
+			});
+		}
+	} else {
+		mixpanel.init("bc8c2b9a06449d481e4397899458b738");
+		mixpanel.register_once({init_pathname: window.location.pathname});
+
+		APP.track = function (eventName, properties) {
+			mixpanel.track(eventName, extendMixpanelProperties(properties));
+		};
+
+		APP.trackLinks = function (selector, eventName, callback) {
+			mixpanel.track_links(selector, eventName, function (el) {
+				return extendMixpanelProperties(callback(el));
+			});
+		};
+	}
+
+	APP.track('pageview');
+	window.onload = function() {
+		APP.track('window_load', {loadtime: new Date().getTime() - APP.start});
+	};
+
+	return APP;
+}());
+</script>
 </head>
 <body>
 	<!--[if lt IE 8]>
@@ -127,5 +184,37 @@
 </div><!-- #container -->
 
 <script src="{{ static_domain }}/_themes/pinfinity/js/jquery-1.9.1.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(function ($) {
+	APP.track('document_ready', {loadtime: new Date().getTime() - APP.start});
+
+	// Track convertions on links.
+	APP.trackLinks('.track-link-conversion', 'conversion', function (el) {
+		return {target: $(el).attr('data-convert-name')};
+	});
+
+	// Track click conversions.
+	$('.track-click-conversion').on('click', function (ev) {
+		var props = {target: $(this).attr('data-convert-name')};
+		APP.track('conversion', props);
+	});
+
+	// Start checkpoint tracking.
+	(function () {
+		var checks = [4000, 12000, 30000, 60000, 120000, 180000]
+			, i = 0, len = checks.length
+
+		function createCheckpoint(milisecs) {
+			window.setTimeout(function () {
+				APP.track('checkpoint', {seconds: Math.round(milisecs / 1000)});
+			}, milisecs);
+		}
+
+		for (; i < len; i += 1) {
+			createCheckpoint(checks[i]);
+		}
+	}());
+});
+</script>
 </body>
 </html>
