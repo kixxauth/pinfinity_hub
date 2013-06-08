@@ -28,13 +28,13 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 		{% for entry in entries %}
 		<div class="entry">
 			<div class="entry-inner">
-			<h4 class="header">{{ entry.name }}</h4>
+			<h3 class="header light">{{ entry.name }}</h3>
 			<p class="entry-image"><img src="/hub/gallery/{{ entry.id }}/files/Default.png" />
 			<p>
-				<a class="track-link-conversion"
+				<a class="track-link-conversion button"
 					data-convert-name="gallery widget-preview"
 					href="/hub/gallery/{{ entry.id }}/preview">Preview</a>
-				<a class="track-link-conversion"
+				<a class="track-link-conversion button"
 					data-convert-name="gallery widget-download"
 					href="/hub/downloads/{{ entry.download }}">Download</a>
 			</p>
@@ -44,9 +44,11 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 	</div>
 	<div id="upload-widget" class="row upload-widget">
 		<h2 class="header light">What have you been working on?</h2>
-		<p class="info">Just zip up your widget (.wdgt) directory, upload it, and we'll show it off.</p>
+		<p class="info">Just zip up your widget (.wdgt) directory, upload it, and then tell all your friends.</p>
 
-		<form class="form" action="/hub/gallery/" method="POST" enctype="multipart/form-data">
+		<form id="widget-gallery-upload-form" class="form"
+			action="/hub/gallery/" method="POST" enctype="multipart/form-data">
+
 			<label for="gallery_file">Choose a .wdgt.zip file</label>
 			<input id="gallery_file" name="gallery_file" type="file" />
 
@@ -56,7 +58,11 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 			<label for="email_address">Your email address.</label>
 			<input type="text" id="email_address" name="email_address" />
 
-			<p class="legal">Our privacy policy is to never share, sell, or rent your email address to anyone. Ever.</p>
+			<p class="legal">
+			Your email is required for you to claim creative rights to a widget in
+			case we end up creating user profiles in the future.  Our privacy policy
+			is to never share, sell, or rent your email address to anyone. Ever.
+			</p>
 
 			<div class="form-actions">
 				<button class="button" type="submit">Upload It!</button>
