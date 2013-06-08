@@ -102,7 +102,14 @@ widgetFiles = (req, res, next) ->
 
     # We have to rewrite the request path before the static handler gets it.
     parts = req.path.split('/').slice(5)
-    req.url = "#{widgetId}/#{parts.join('/')}"
+    reqURL = "/#{widgetId}/#{parts.join('/')}"
+
+    parts = GALLERY.split('/').concat(reqURL.split('/'))
+    abspath = pathFromArray(parts)
+    if not abspath.exists()
+        reqURL = reqURL.toLowerCase()
+
+    req.url = reqURL
     return next()
 
 
@@ -126,6 +133,13 @@ extendContext = (req, res, next) ->
         static_domain: "http://#{static_domain}"
     res.updateContext(ext)
     return next()
+
+
+pathFromArray = (arr) ->
+    path = PATH.newPath.apply(PATH, arr)
+    if arr[0] is '' then path = PATH.newPath('/'+ path)
+    return path
+
 
 # Extract a widget zip archive and write it to disk.
 saveWidget = (opts) ->
