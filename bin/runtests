@@ -1,0 +1,5 @@
+#!/bin/bash
+BINDIR="$(cd `dirname "$0"` && pwd)"
+ROOTDIR="$( dirname "$BINDIR" )"
+
+"$ROOTDIR/node_modules/.bin/em" "test"

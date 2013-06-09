@@ -8,6 +8,10 @@ main () {
             shift
             setup "$@"
             ;;
+        'test')
+            shift
+            run_tests "$@"
+            ;;
         'clean')
             shift
             clean "$@"
@@ -33,6 +37,11 @@ setup () {
         mkdir "$BASE/node_modules"
         npm install
     fi
+}
+
+run_tests () {
+    cd "$BASE/"
+    "$BASE/bin/runtests"
 }
 
 clean () {
