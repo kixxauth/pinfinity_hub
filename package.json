@@ -7,6 +7,7 @@
     "dependencies": {
         "enginemill": "0.2.0",
         "connect": "2.7.10",
-        "adm-zip": "0.4.3"
+        "adm-zip": "0.4.3",
+        "plist": "0.4.3"
     }
 }

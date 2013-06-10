@@ -5,7 +5,7 @@ describe("save_html5_widget", function () {
 
     describe("parseWidget()", function () {
 
-        it("should return a data struct", function () {
+        it("should extract zip and return a data struct", function () {
             var zipFixture = __dirname +'/fixtures/widgets/google-maps.wdgt.zip';
 
             var struct = save_html5_widget.parseWidget({
@@ -42,11 +42,11 @@ describe("save_html5_widget", function () {
             });
 
             // The height from Info.plist.
-            struct.height.should.be.a('number');
+            struct.Height.should.equal(768);
             // The width from Info.plist.
-            struct.width.should.be.a('number');
+            struct.Width.should.equal(1024);
             // The declared mainHTML from Info.plist.
-            struct.mainHTML.should.be.a('string');
+            struct.MainHTML.should.equal('main.html');
 
             return;
         });
