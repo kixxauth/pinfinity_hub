@@ -13,9 +13,9 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 	</div>
 	<div class="row widget-preview">
 		<iframe id="preview-frame"
-			style="width:1024px;height:768px;"
+			style="width:{{ item.Width|default("1024") }}px;height:{{ item.Height|default("768") }}px;"
 			frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-			src="/hub/gallery/{{ item }}/files/Main.html"></iframe>
+			src="/hub/gallery/{{ item.id }}/files/{{ item.MainHTML|default("Main.html") }}"></iframe>
 	</div>
 	<div class="row widget-preview-footer">
 		<a href="/hub/gallery/" class="button">Back to the gallery</a>

@@ -5,10 +5,11 @@ ZIP   = require 'adm-zip'
 multipartParser = require 'connect/lib/middleware/multipart'
 staticServer    = require 'connect/lib/middleware/static'
 
-GALLERY  = '/var/pinfinity_hub/gallery'
-DATA     = '/var/pinfinity_hub/data'
-DWNLOADS = '/var/pinfinity_hub/downloads'
-TEMP     = '/tmp/pinfinity_hub'
+saveHTML5Widget = require '../business/save_html5_widget'
+
+GALLERY       = saveHTML5Widget.GALLERY
+DWNLOADS      = saveHTML5Widget.DWNLOADS
+STATIC_DOMAIN = process.env['STATIC_DOMAIN'] || 'www.pinfinity.co'
 
 
 exports.controllers = (use, handler) ->
@@ -31,12 +32,7 @@ exports.controllers = (use, handler) ->
 
 # Handler: Main gallery listing.
 index = (req, res, next) ->
-
-    # List all the gallery entries from the directory.
-    entries = PATH.newPath(DATA).list().reverse().map (path) ->
-        json = FS.readFileSync(path.toString(), 'utf8')
-        return JSON.parse(json)
-
+    entries = saveHTML5Widget.getAllWidgets()
     res.updateContext({entries: entries})
 
     res.render (format, context) ->
@@ -67,12 +63,11 @@ widgetPost = (req, res, next) ->
         res.updateContext({error: err})
     else
         try
-            saveWidget({
+            saveHTML5Widget.saveWidget({
                 widgetName: widgetName
                 zipName: zip.name
                 emailAddress: emailAddress
                 sourcePath: zip.path
-                targetRoot: GALLERY
             })
         catch err
             msg = "There was an unexpected error while processing your widget: "
@@ -87,7 +82,8 @@ widgetPost = (req, res, next) ->
 # Handler: Render the HTML widget preview frame.
 widgetFrame = (req, res, next) ->
     widgetId = req.params['widget']
-    res.updateContext({item: widgetId})
+    widget = saveHTML5Widget.getWidget(widgetId)
+    res.updateContext({item: widget})
 
     res.render (format, context) ->
         return @html(200, '/gallery/preview.html', context)
@@ -118,7 +114,6 @@ download = (req, res, next) ->
     id = req.params['id']
 
     # We have to rewrite the request path before the static handler gets it.
-    name = req.path.split('/').pop()
     req.url = "#{id}/#{name}"
     return next()
 
@@ -128,9 +123,8 @@ download = (req, res, next) ->
 #
 
 extendContext = (req, res, next) ->
-    static_domain = process.env['STATIC_DOMAIN'] || 'www.pinfinity.co'
     ext =
-        static_domain: "http://#{static_domain}"
+        static_domain: "http://#{STATIC_DOMAIN}"
     res.updateContext(ext)
     return next()
 
@@ -139,53 +133,3 @@ pathFromArray = (arr) ->
     path = PATH.newPath.apply(PATH, arr)
     if arr[0] is '' then path = PATH.newPath('/'+ path)
     return path
-
-
-# Extract a widget zip archive and write it to disk.
-saveWidget = (opts) ->
-    {widgetName, emailAddress, sourcePath, targetRoot, zipName} = opts
-    zip = new ZIP(sourcePath)
-
-    # Using a timestamp as UID should be good enough for now.
-    id = new Date().getTime().toString()
-
-    # Extract to a temporary location
-    temp = "#{TEMP}/#{id}"
-    zip.extractAllTo(temp, true)
-
-    entries = zip.getEntries().forEach (entry) ->
-        if not entry.isDirectory
-
-            # Split off the zip file directory name.
-            entrypath = entry.entryName.split('/').slice(1).join('/')
-
-            # Create the target directory path.
-            targetpath = "#{targetRoot}/#{id}/#{entrypath}"
-
-            # Create the new target directory
-            PATH.newPath(NPATH.dirname(targetpath)).mkdir()
-
-            # Copy the file to the target location
-            data = FS.readFileSync("#{temp}/#{entry.entryName}")
-            FS.writeFileSync(targetpath, data)
-        return
-
-    widget =
-        id: id
-        name: widgetName
-        owner: emailAddress
-        download: id + '/' + zipName
-
-    # Save the widget meta to disk.
-    datafile = "#{DATA}/#{id}.json"
-    FS.writeFileSync(datafile, JSON.stringify(widget), 'utf8')
-
-    # Copy the zip file to a safe location for download.
-    destdir = PATH.newPath(DWNLOADS, id).mkdir()
-    dest = destdir.append(zipName).toString()
-    source = FS.createReadStream(sourcePath)
-    sink = FS.createWriteStream(dest)
-    # TODO: Add error handlers to source and sink.
-    source.pipe(sink)
-
-    return widget

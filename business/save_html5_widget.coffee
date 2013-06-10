@@ -80,6 +80,19 @@ exports.parseWidget = (opts) ->
     return rv
 
 
+exports.getWidget = (id) ->
+    path = PATH.newPath(exports.DATA).append(id + '.json').toString()
+    json = FS.readFileSync(path, 'utf8')
+    return JSON.parse(json)
+
+
+exports.getAllWidgets = ->
+    entries = PATH.newPath(exports.DATA).list().reverse().map (path) ->
+        json = FS.readFileSync(path.toString(), 'utf8')
+        return JSON.parse(json)
+    return entries
+
+
 filterZipFiles = (entry) ->
     if entry.isDirectory then return false
     else return true
