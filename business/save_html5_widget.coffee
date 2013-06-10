@@ -10,9 +10,55 @@ exports.DWNLOADS = '/var/pinfinity_hub/downloads'
 exports.TEMP     = '/tmp/pinfinity_hub'
 
 
+# Public: Save an uploaded widget.
+# 
+# opts - An options Object hash.
+#   .widgetName - The user given name of the widget.
+#   .emailAddress - The user entered email address.
+#   .sourcePath - The abspath where the file was temporarily persisted.
+#   .zipName - The name of the uploaded zip file.
+#
+# Returns a widget meta Object hash.
+exports.saveWidget = (opts, callback) ->
+    widget = exports.parseWidget(opts)
+
+    # Copy the individual zip file entries to the permanent location.
+    widget.zipEntries.forEach (entry) ->
+
+        # Split off the zip file directory name.
+        entrypath = entry.split('/').slice(1).join('/')
+
+        # Create the target directory path.
+        targetpath = "#{exports.GALLERY}/#{widget.id}/#{entrypath}"
+
+        # Create the new target directory
+        PATH.newPath(NPATH.dirname(targetpath)).mkdir()
+
+        # Copy the file to the target location
+        src = "#{widget.tempExtractLocation}/#{entry}"
+        FS.writeFileSync(targetpath, FS.readFileSync(src))
+        return
+
+    widget.location = PATH.newPath(exports.DWNLOADS, widget.id).mkdir()
+    widget.location = widget.location.append(widget.zipname).toString()
+
+    # Save the widget meta to disk.
+    datafile = "#{exports.DATA}/#{widget.id}.json"
+    FS.writeFileSync(datafile, JSON.stringify(widget), 'utf8')
+
+    # Copy the zip file to a safe location for download.
+    source = FS.createReadStream(widget.tempZipPath)
+    sink = FS.createWriteStream(widget.location)
+    # TODO: Add error handlers to source and sink.
+    source.pipe(sink)
+
+    if isFunction(callback) then sink.on('close', callback)
+    return widget
+
+
 exports.parseWidget = (opts) ->
     opts or= {}
-    {widgetName, emailAddress, sourcePath, zipName, tempDirectory} = opts
+    {widgetName, emailAddress, sourcePath, zipName} = opts
     rv = Object.create(null)
     rv.id = new Date().getTime().toString()
     rv.name = widgetName or 'unnamed'
