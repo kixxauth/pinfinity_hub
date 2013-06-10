@@ -48,6 +48,12 @@ describe("save_html5_widget", function () {
             // The declared mainHTML from Info.plist.
             struct.MainHTML.should.equal('main.html');
 
+            var sourceDir = PATH.newPath(struct.tempExtractLocation);
+            struct.zipEntries.forEach(function (entry) {
+              var path = sourceDir.append(entry);
+              path.exists().should.be.true;
+            });
+
             return;
         });
 
