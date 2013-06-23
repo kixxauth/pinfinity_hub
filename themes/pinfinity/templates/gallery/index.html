@@ -25,7 +25,9 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 	</div>
 	{% endif %}
 	<div class="row gallery">
-		{% for entry in entries %}
+	{% for row in entries %}
+		<div class="widget-column">
+		{% for entry in row %}
 		<div class="entry">
 			<div class="entry-inner">
 			<h3 class="header light">{{ entry.name }}</h3>
@@ -41,6 +43,8 @@ A gallery and preview tool for HTML5 widgets used in iBooks Author.
 			</div>
 		</div>
 		{% endfor %}
+		</div>
+	{% endfor %}
 	</div>
 	<div id="upload-widget" class="row upload-widget">
 		<h2 class="header light">What have you been working on?</h2>

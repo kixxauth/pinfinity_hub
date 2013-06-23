@@ -32,7 +32,13 @@ exports.controllers = (use, handler) ->
 
 # Handler: Main gallery listing.
 index = (req, res, next) ->
-    entries = saveHTML5Widget.getAllWidgets()
+    all = saveHTML5Widget.getAllWidgets()
+    entries = all.reduce( (entries, item, i) ->
+        col = i % 3
+        entries[col].push(item)
+        return entries
+    , [[],[],[]])
+
     res.updateContext({entries: entries})
 
     res.render (format, context) ->
