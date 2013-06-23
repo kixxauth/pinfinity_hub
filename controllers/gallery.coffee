@@ -103,7 +103,7 @@ widgetFiles = (req, res, next) ->
     widgetId = req.params['widget']
 
     # We have to rewrite the request path before the static handler gets it.
-    parts = req.path.split('/').slice(5)
+    parts = decodeURIComponent(req.path).split('/').slice(5)
     reqURL = "/#{widgetId}/#{parts.join('/')}"
 
     parts = GALLERY.split('/').concat(reqURL.split('/'))
