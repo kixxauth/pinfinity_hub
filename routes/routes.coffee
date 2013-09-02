@@ -1,5 +1,7 @@
 exports.routes = (route) ->
 
+  route 'postSubscriber', 'POST', '/subscriptions', 'subscribers post'
+
   route 'galleryIndex', 'GET,HEAD', '/hub/gallery', 'gallery index'
   route 'galleryWidgetPost', 'POST', '/hub/gallery', 'gallery widgetPost'
   route 'galleryWidgetFrame', 'GET,HEAD', '/hub/gallery/:widget/preview', 'gallery widgetFrame'
