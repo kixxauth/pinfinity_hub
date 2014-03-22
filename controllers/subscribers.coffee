@@ -31,11 +31,13 @@ post = (req, res, next) ->
     jar: no
     encoding: 'utf8'
 
+  console.log('Posting subscription request to Google Forms.')
   req = REQ.post opts, (err, res, body) ->
     if err
       console.error('Google Forms POST error:')
       console.error(err)
-      return
+    else
+      console.log('Google Forms POST response:', res.statusCode)
     return
 
   req.on 'error', (err) ->
